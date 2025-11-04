@@ -1,10 +1,6 @@
-def tinh_diem_hoc_phan(trong_so, diem):
-    """Tính điểm học phần từ trọng số và điểm."""
-    trong_so_qua_trinh, trong_so_giua_ki, trong_so_cuoi_ki = trong_so
-    diem_qua_trinh, diem_giua_ki, diem_cuoi_ki = diem
-    diem_tong = (diem_qua_trinh * trong_so_qua_trinh + 
-                 diem_giua_ki * trong_so_giua_ki + 
-                 diem_cuoi_ki * trong_so_cuoi_ki)
+def tinh_diem_hoc_phan(trong_so_qua_trinh, trong_so_giua_ki, trong_so_cuoi_ki,
+                       diem_qua_trinh, diem_giua_ki, diem_cuoi_ki):
+    diem_tong = ((diem_qua_trinh * trong_so_qua_trinh) + (diem_giua_ki * trong_so_giua_ki) +(diem_cuoi_ki * trong_so_cuoi_ki))
     return round(diem_tong, 1)  # Làm tròn đến 1 chữ số thập phân
 
 def xac_dinh_diem_chu(diem_hoc_phan):
@@ -21,7 +17,3 @@ def xac_dinh_diem_chu(diem_hoc_phan):
         return "C"
     else:
         return "F"
-
-# Chạy chương trình
-if __name__ == "__main__":
-    pass
