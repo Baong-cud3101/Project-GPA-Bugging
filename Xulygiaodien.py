@@ -1,8 +1,8 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox,QTableWidgetItem
 from PyQt6 import QtWidgets
 from Giaodien_GPA import Ui_MainWindow
-from Tinh_GPA import *
+from Tinh_GPA import tinh_diem_hoc_phan, xac_dinh_diem_chu
 
 class MainWindow():
     def __init__(self):
@@ -12,19 +12,14 @@ class MainWindow():
         self.uic = Ui_MainWindow()
         #Gán giao diện vào cửa sổ chính
         self.uic.setupUi(self.main_win)
-        self.linkbuttons()
-    def linkbuttons(self):
-        #liên kết các nút bấm "Nhập" và "Tính GPA"
-        self.uic.Nhap.clicked.connect(self.add_subject)
-
-        """self.uic.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.uic.table.customContextMenuRequested.connect(self.show_context_menu)"""
-        self.current_row = 0
+        #liên kết nút với hàm xử lý
+        self.uic.Nhap.clicked.connect(self.xu_ly)
+        self.hang= 0
     
-    def show(self):
+    def hien_thi(self):
         self.main_win.show()
 
-    def add_subject(self):
+    def xu_ly(self):
         try:
             ten_mon = str(self.uic.Mon_hoc.toPlainText())
             tin_chi = int(self.uic.So_tin.toPlainText())
@@ -49,29 +44,28 @@ class MainWindow():
         except ValueError as e:
             QMessageBox.warning(self.main_win, "Lỗi nhập liệu", str(e))
         # Nếu không có lỗi, tính điểm tổng và thêm vào bảng
-        trong_so = (trong_so_qua_trinh, trong_so_giua_ki, trong_so_cuoi_ki)
-        diem = (diem_qua_trinh, diem_giua_ki, diem_cuoi_ki)
-        diem_hoc_phan = tinh_diem_hoc_phan(trong_so, diem)
+        diem_hoc_phan = tinh_diem_hoc_phan(trong_so_qua_trinh, trong_so_giua_ki, trong_so_cuoi_ki,
+                       diem_qua_trinh, diem_giua_ki, diem_cuoi_ki)
         diem_chu = xac_dinh_diem_chu(diem_hoc_phan)
 
-        self.uic.table.insertRow(self.current_row)  #Thêm một hàng mới vào bảng
-        self.uic.table.setItem(self.current_row, 0, QtWidgets.QTableWidgetItem(ten_mon))
-        self.uic.table.setItem(self.current_row, 1, QtWidgets.QTableWidgetItem(str(tin_chi)))
-        self.uic.table.setItem(self.current_row, 2, QtWidgets.QTableWidgetItem(f"{trong_so_qua_trinh:.2f}"))
-        self.uic.table.setItem(self.current_row, 3, QtWidgets.QTableWidgetItem(f"{trong_so_giua_ki:.2f}"))
-        self.uic.table.setItem(self.current_row, 4, QtWidgets.QTableWidgetItem(f"{trong_so_cuoi_ki:.2f}"))
-        self.uic.table.setItem(self.current_row, 5, QtWidgets.QTableWidgetItem(f"{diem_qua_trinh:.2f}"))
-        self.uic.table.setItem(self.current_row, 6, QtWidgets.QTableWidgetItem(f"{diem_giua_ki:.2f}"))
-        self.uic.table.setItem(self.current_row, 7, QtWidgets.QTableWidgetItem(f"{diem_cuoi_ki:.2f}"))
-        self.uic.table.setItem(self.current_row, 8, QtWidgets.QTableWidgetItem(f"{diem_hoc_phan:.2f}"))
-        self.uic.table.setItem(self.current_row, 9, QtWidgets.QTableWidgetItem(f"{diem_chu}"))
-        self.current_row += 1
+        self.uic.table.insertRow(self.hang)  #Thêm một hàng mới vào bảng
+        self.uic.table.setItem(self.hang, 0, QtWidgets.QTableWidgetItem(ten_mon))
+        self.uic.table.setItem(self.hang, 1, QtWidgets.QTableWidgetItem(str(tin_chi)))
+        self.uic.table.setItem(self.hang, 2, QtWidgets.QTableWidgetItem(f"{trong_so_qua_trinh:.2f}"))
+        self.uic.table.setItem(self.hang, 3, QtWidgets.QTableWidgetItem(f"{trong_so_giua_ki:.2f}"))
+        self.uic.table.setItem(self.hang, 4, QtWidgets.QTableWidgetItem(f"{trong_so_cuoi_ki:.2f}"))
+        self.uic.table.setItem(self.hang, 5, QtWidgets.QTableWidgetItem(f"{diem_qua_trinh:.2f}"))
+        self.uic.table.setItem(self.hang, 6, QtWidgets.QTableWidgetItem(f"{diem_giua_ki:.2f}"))
+        self.uic.table.setItem(self.hang, 7, QtWidgets.QTableWidgetItem(f"{diem_cuoi_ki:.2f}"))
+        self.uic.table.setItem(self.hang, 8, QtWidgets.QTableWidgetItem(f"{diem_hoc_phan:.2f}"))
+        self.uic.table.setItem(self.hang, 9, QtWidgets.QTableWidgetItem(f"{diem_chu}"))
+        self.hang += 1
 
         QMessageBox.information(self.main_win, "Thông báo", "Đã thêm môn học thành công!")
         
         #Tính GPA tích lũy sau khi thêm môn học
-        total_credits = 0
-        weighted_sum = 0
+        tong_tin = 0
+        diem_tb = 0
 
         row_count = self.uic.table.rowCount()
 
@@ -86,19 +80,19 @@ class MainWindow():
                     tin_chi = float(tin_chi_item.text())
                     diem_hp = float(diem_hp_item.text())
 
-                    total_credits += tin_chi
-                    weighted_sum += tin_chi * diem_hp
+                    tong_tin += tin_chi
+                    diem_tb += tin_chi * diem_hp
                 except ValueError:
                     pass  # Bỏ qua nếu dữ liệu không hợp lệ (ví dụ text)
 
         # Tính GPA
-        if total_credits > 0:
-            gpa = weighted_sum / total_credits
+        if tong_tin > 0:
+            gpa = diem_tb / tong_tin
         
         self.uic.GPA_tichluy.setText(f"{gpa:.2f}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.show()
+    window.hien_thi()
     app.exec()
