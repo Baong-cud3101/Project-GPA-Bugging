@@ -32,7 +32,7 @@ class MainWindow():
             
             # Kiểm tra trọng số tổng = 100%
             tong_trong_so = trong_so_qua_trinh + trong_so_giua_ki + trong_so_cuoi_ki
-            if abs(tong_trong_so - 1.0) > 1e-6:
+            if abs(tong_trong_so - 1.0) > 0.0001:
                 raise ValueError("Tổng trọng số phải bằng 1.0")
              # Kiểm tra điểm hợp lệ
             if not (0 <= diem_qua_trinh <= 10 and 0 <= diem_giua_ki <= 10 and 0 <= diem_cuoi_ki <= 10):
