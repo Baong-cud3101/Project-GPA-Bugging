@@ -67,12 +67,13 @@ class MainWindow():
         tong_tin = 0
         diem_tb = 0
 
-        row_count = self.uic.table.rowCount()
 
-        for row in range(row_count):
+        dem_hang = self.uic.table.rowCount()
+
+        for so_hang in range(dem_hang):
             # Lấy giá trị từ cột tín chỉ và điểm học phần
-            tin_chi_item = self.uic.table.item(row, 1)
-            diem_hp_item = self.uic.table.item(row, 8)
+            tin_chi_item = self.uic.table.item(so_hang, 1)
+            diem_hp_item = self.uic.table.item(so_hang, 8)
 
             # Kiểm tra ô có dữ liệu không
             if tin_chi_item is not None and diem_hp_item is not None:
@@ -83,7 +84,7 @@ class MainWindow():
                     tong_tin += tin_chi
                     diem_tb += tin_chi * diem_hp
                 except ValueError:
-                    pass  # Bỏ qua nếu dữ liệu không hợp lệ (ví dụ text)
+                    pass  
 
         # Tính GPA
         if tong_tin > 0:
