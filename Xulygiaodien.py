@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox,QTableWidgetItem
 from PyQt6 import QtWidgets
 from Giaodien_GPA import Ui_MainWindow
-from Tinh_GPA import tinh_diem_hoc_phan, xac_dinh_diem_chu
+from Tinh_GPA import tinh_diem_hoc_phan, xac_dinh_diem_chu,diem_tinh
 
 class MainWindow():
     def __init__(self):
@@ -12,12 +12,37 @@ class MainWindow():
         self.uic = Ui_MainWindow()
         #Gán giao diện vào cửa sổ chính
         self.uic.setupUi(self.main_win)
-        #liên kết nút với hàm xử lý
+        #liên kết các nút bấm "Nhập" và "Tính GPA"
         self.uic.Nhap.clicked.connect(self.xu_ly)
+        self.uic.Tinh_diem.clicked.connect(self.xu_ly_2)
         self.hang= 0
     
     def hien_thi(self):
         self.main_win.show()
+
+    def xu_ly_2(self):
+        try:
+            # Kiểm tra đã có dữ liệu GPA trước chưa
+            if not hasattr(self, "diem_hien_tai") or not hasattr(self, "tin_chi_hien_tai"):
+                QMessageBox.warning(self.main_win, "Lỗi", "Vui lòng nhập ít nhất 1 môn học trước khi tính điểm!")
+                return
+
+            # Kiểm tra dữ liệu đầu vào
+            if not self.uic.so_diem_du_kien.toPlainText() or not self.uic.so_tin_ctdt.toPlainText():
+                QMessageBox.warning(self.main_win, "Lỗi nhập liệu",
+                                    "Vui lòng nhập đủ 'Số tín chỉ CTĐT' và 'Số điểm bạn muốn'!")
+                return
+
+            Diem_aim = float(self.uic.so_diem_du_kien.toPlainText())
+            tin_chi_tong = float(self.uic.so_tin_ctdt.toPlainText())
+            tin_chi_con_lai = tin_chi_tong - self.tin_chi_hien_tai
+
+            diem_can_dat = diem_tinh(self.diem_hien_tai,self.tin_chi_hien_tai,Diem_aim,tin_chi_tong,tin_chi_con_lai)
+
+            QMessageBox.information(self.main_win, "Kết quả", f"Điểm cần đạt ở các học phần còn lại là: {diem_can_dat:.2f}")
+
+        except Exception as e:
+            QMessageBox.warning(self.main_win, "Lỗi", f"Không thể tính toán.\nChi tiết: {e}")
 
     def xu_ly(self):
         try:
@@ -29,12 +54,12 @@ class MainWindow():
             diem_qua_trinh = float(self.uic.DQua_trinh.toPlainText())
             diem_giua_ki = float(self.uic.DGiua_ki.toPlainText())
             diem_cuoi_ki = float(self.uic.DCuoi_ki.toPlainText())
-            
-            # Kiểm tra trọng số tổng = 100%
+
+
             tong_trong_so = trong_so_qua_trinh + trong_so_giua_ki + trong_so_cuoi_ki
             if abs(tong_trong_so - 1.0) > 0.0001:
                 raise ValueError("Tổng trọng số phải bằng 1.0")
-             # Kiểm tra điểm hợp lệ
+
             if not (0 <= diem_qua_trinh <= 10 and 0 <= diem_giua_ki <= 10 and 0 <= diem_cuoi_ki <= 10):
                 raise ValueError("Điểm phải nằm trong khoảng 0-10")
             if tin_chi <= 0:
@@ -43,7 +68,7 @@ class MainWindow():
                 raise ValueError("Tên môn học không được để trống")      
         except ValueError as e:
             QMessageBox.warning(self.main_win, "Lỗi nhập liệu", str(e))
-        # Nếu không có lỗi, tính điểm tổng và thêm vào bảng
+
         diem_hoc_phan = tinh_diem_hoc_phan(trong_so_qua_trinh, trong_so_giua_ki, trong_so_cuoi_ki,
                        diem_qua_trinh, diem_giua_ki, diem_cuoi_ki)
         diem_chu = xac_dinh_diem_chu(diem_hoc_phan)
@@ -64,9 +89,8 @@ class MainWindow():
         QMessageBox.information(self.main_win, "Thông báo", "Đã thêm môn học thành công!")
         
         #Tính GPA tích lũy sau khi thêm môn học
-        tong_tin = 0
+        tin_hien_tai = 0
         diem_tb = 0
-
 
         dem_hang = self.uic.table.rowCount()
 
@@ -81,14 +105,16 @@ class MainWindow():
                     tin_chi = float(tin_chi_item.text())
                     diem_hp = float(diem_hp_item.text())
 
-                    tong_tin += tin_chi
+                    tin_hien_tai += tin_chi
                     diem_tb += tin_chi * diem_hp
                 except ValueError:
-                    pass  
+                    pass
 
         # Tính GPA
-        if tong_tin > 0:
-            gpa = diem_tb / tong_tin
+        if tin_hien_tai > 0:
+            gpa = diem_tb / tin_hien_tai
+        self.diem_hien_tai=gpa
+        self.tin_chi_hien_tai=tin_hien_tai
         
         self.uic.GPA_tichluy.setText(f"{gpa:.2f}")
 
