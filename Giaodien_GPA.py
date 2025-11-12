@@ -179,4 +179,3 @@ class Ui_MainWindow(object):
         self.label_10.setText(_translate("MainWindow", "Số tín CTĐT"))
         self.label_11.setText(_translate("MainWindow", "Số điếm bạn muốn"))
         self.Tinh_diem.setText(_translate("MainWindow", "Tính điểm bạn cần đạt"))
-
