@@ -123,3 +123,7 @@ if __name__ == "__main__":
     window = MainWindow()
     window.hien_thi()
     app.exec()
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.hien_thi()
+    app.exec()
