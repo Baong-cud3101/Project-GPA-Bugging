@@ -20,3 +20,6 @@ def xac_dinh_diem_chu(diem_hoc_phan):
 def diem_tinh(gpa,tinchi_hientai,gpa_aim,tin_chi_tong,tin_chi_con_lai):
     Diem_can_dat = ((gpa_aim *tin_chi_tong) - (gpa * tinchi_hientai))/(tin_chi_con_lai)
     return Diem_can_dat
+# Chạy chương trình
+if __name__ == "__main__":
+    pass
